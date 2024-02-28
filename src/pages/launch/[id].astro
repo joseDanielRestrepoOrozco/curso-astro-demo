@@ -1,0 +1,37 @@
+---
+import { getLaunchById, getLatestLaunches } from '../../services/spacex'
+import Layout from "../../layouts/Layout.astro"
+
+const { id } = Astro.params
+
+//en caso de querer hacer paginas dinamicas que corran en el servidor
+export const prerender = true
+
+let launch;
+if (id) {
+    launch = await getLaunchById({id});
+}
+
+// en caso de querer usar paginas unicamente estaticas
+
+ export async function getStaticPaths() {  
+    
+     const launches = await getLatestLaunches()
+
+     return launches.map((launch) => ({
+         params: {id: launch.id},
+     }))
+ }   
+---
+<Layout title=`Lanzamiento ${id}`>
+    <article class="flex flex-col gap-y-4">
+        <img 
+        class="w-52 h-auto"
+        src={launch?.links?.patch.small}
+        alt={launch?.name}>
+        <h2 class="text-4xl text-white font-bold">
+            Launch #{launch?.flight_number}
+        </h2>
+        <p class="text-lg">{launch?.details}</p>
+    </article>
+</Layout>
